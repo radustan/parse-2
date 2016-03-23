@@ -4,14 +4,19 @@ Parse.Cloud.define('hello', function(req, res) {
 });
 
 Parse.Cloud.define('getActiveProducts', function(req, res){
-  var query = new Parse.Query("Products");
+  var User = Parse.Object.extend("User");
+  var Products = Parse.Object.extend("Products");
+  var innerQuery = new Parse.Query(User);
+  innerQuery.equalTo("objectId", req.params.currentUser);
+  var query = new Parse.Query(Products);
+  query.matchesQuery("createdby", innerQuery);
   query.notEqualTo('isDeleted', 1);
   query.find({
     success: function(results) {
       res.success(results)
     },
     error: function() {
-      res.error("Could not retrieve users");
+      res.error("Could not retrieve products");
     }
   })
 });
